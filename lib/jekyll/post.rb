@@ -20,7 +20,7 @@ module Jekyll
 
     attr_accessor :site
     attr_accessor :data, :content, :output, :ext
-    attr_accessor :date, :slug, :published, :tags, :categories
+    attr_accessor :date, :slug, :published, :tags, :categories, :updated
 
     # Initialize this Post instance.
     #   +site+ is the Site
@@ -42,6 +42,13 @@ module Jekyll
       if self.data.has_key?('date')
         # Ensure Time via to_s and reparse into a real date object
         self.date = self.data["date"] = Time.parse(self.data["date"].to_s)        
+      end
+      
+      # Allow for updated property on post for feed updates
+      if self.data.has_key?('updated')
+        self.updated = self.data["updated"] = Time.parse(self.data["updated"].to_s)
+      elsif self.date
+        self.updated = self.date
       end
 
       if self.data.has_key?('published') && self.data['published'] == false
@@ -75,6 +82,7 @@ module Jekyll
     def process(name)
       m, cats, date, slug, ext = *name.match(MATCHER)
       self.date = Time.parse(date)
+      self.updated = self.date
       self.slug = slug
       self.ext = ext
     end
@@ -203,6 +211,7 @@ module Jekyll
       { "title"      => self.data["title"] || self.slug.split('-').select {|w| w.capitalize! || w }.join(' '),
         "url"        => self.url,
         "date"       => self.date,
+        "updated"    => self.updated,
         "id"         => self.id,
         "categories" => self.categories,
         "next"       => self.next,

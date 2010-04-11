@@ -35,11 +35,12 @@ class TestPost < Test::Unit::TestCase
         @source = source_dir('_posts')
       end
 
-      should "keep date, title, and markup type" do
+      should "keep date, updated, title, and markup type" do
         @post.categories = []
         @post.process(@fake_file)
 
         assert_equal Time.parse("2008-10-19"), @post.date
+        assert_equal Time.parse("2008-10-19"), @post.updated
         assert_equal "foo-bar", @post.slug
         assert_equal ".textile", @post.ext
         assert_equal "/2008/10/19", @post.dir
@@ -233,6 +234,18 @@ class TestPost < Test::Unit::TestCase
       should "recognize time in yaml" do
         post = setup_post("2010-01-09-time-override.textile")
         assert_equal "/2010/01/10/time-override.html", post.url
+      end
+
+      should "recognize updated as date in yaml" do
+        post = setup_post("2010-01-09-updated-date-override.textile")
+        assert_equal "/2010/01/09/updated-date-override.html", post.url
+        assert_equal Time.parse("2010-01-10"), post.updated
+      end
+
+      should "recognize updated as time in yaml" do
+        post = setup_post("2010-01-09-updated-time-override.textile")
+        assert_equal "/2010/01/09/updated-time-override.html", post.url
+        assert_equal Time.parse("2010-01-10 13:07:09"), post.updated
       end
 
       should "recognize category in yaml" do
